@@ -11,80 +11,63 @@ class Chain:
     def __init__(self):
         self.llm = ChatGroq(temperature=0, groq_api_key=os.getenv("GROQ_API_KEY"), model_name="llama3-70b-8192")
 
-    def extract_jobs(self, cleaned_text):
-        prompt_extract = PromptTemplate.from_template(
-            """
-            ### SCRAPED TEXT FROM WEBSITE:
-            {page_data}
-            ### INSTRUCTION:
-            The scraped text is from the career's page of a website.
-            Your job is to extract the job postings and return them in JSON format containing the following keys: `role`, `experience`, `skills` and `description`.
-            Only return the valid JSON.
-            ### VALID JSON (NO PREAMBLE):
-            """
-        )
-        chain_extract = prompt_extract | self.llm
-        res = chain_extract.invoke(input={"page_data": cleaned_text})
-        try:
-            json_parser = JsonOutputParser()
-            res = json_parser.parse(res.content)
-        except OutputParserException:
-            raise OutputParserException("Context too big. Unable to parse jobs.")
-        return res if isinstance(res, list) else [res]
-
-    # --- UPDATED METHOD ---
-    def write_mail(self, job, links, user_name, user_role, user_company, company_description):
-        """
-        Generates a cold email using a flexible and powerful prompt template.
-        """
-        prompt_email = PromptTemplate.from_template(
+    # --- NEW METHOD with a powerful prompt for job applications ---
+    def write_application_mail(self, job_description, your_name, your_status, your_passion, your_projects, your_skills, your_phone, your_links):
+        
+        prompt_template = PromptTemplate.from_template(
             """
             ### PERSONA:
-            You are a world-class business development executive and an expert cold email writer. Your tone is confident, professional, and helpful.
+            You are a professional career coach who excels at writing concise and impactful cold emails for job applications.
 
             ### CONTEXT:
-            - Your Identity: You are {user_name}, a {user_role} at {user_company}.
-            - Your Company's Pitch: {company_description}
-            - Your Proof Points: Here is a list of relevant portfolio links you can use as social proof: {link_list}
-            - The Target: You are writing to a hiring manager about the following job posting.
-            - Job Posting Text: {job_description}
+            - Applicant's Name: {your_name}
+            - Applicant's Background: {your_status}
+            - Applicant's Passion: {your_passion}
+            - Applicant's Key Projects/Achievements: {your_projects}
+            - Applicant's Relevant Skills: {your_skills}
+            - Applicant's Contact Info: Phone - {your_phone}, Links - {your_links}
+            - The full text of the job description they are applying for is below:
+            ---
+            {job_description}
+            ---
 
             ### TASK:
-            Write a concise, professional, and highly personalized cold email to the hiring manager for this role. The email must be under 150 words and follow the structure below exactly.
+            Analyze the job description to identify the company's name and the specific job role. Then, write a short, professional, and confident cold email from the applicant to the hiring manager. Follow the structure below exactly.
 
             ### EMAIL STRUCTURE:
-            1.  **Subject Line:** Create a short, specific subject line that references the job role.
-            2.  **Personalized Opening (1 sentence):** Start by directly referencing the specific job title to prove you've done research.
-            3.  **Value Proposition (2-3 sentences):** Connect your company's value directly to the key needs and responsibilities mentioned in the job description. Focus on the benefits you provide (e.g., "increase efficiency," "reduce costs," "solve X problem").
-            4.  **Social Proof (1 sentence):** Naturally include one of the most relevant portfolio links from the context to build credibility.
-            5.  **Call to Action (1 sentence):** End with a single, clear, low-friction question suggesting a brief call (e.g., "Would you be open to a 15-minute call next week?").
+            1.  **Subject Line:** Format as "[Role] Application – [Your Name]".
+            2.  **Greeting:** Use a professional but generic greeting like "Dear Hiring Manager,".
+            3.  **Paragraph 1 (Introduction):** In one or two sentences, introduce the applicant, their background, their passion, and mention their key projects/achievements.
+            4.  **Paragraph 2 (Connection & Value):** In one or two sentences, state admiration for the company's work (infer this from the job description) and explicitly state the desire to contribute their specific skills to the team.
+            5.  **Paragraph 3 (Call to Action):** Mention that the resume and portfolio are attached/linked and ask for a quick call to explore opportunities.
+            6.  **Signature:** Format the signature exactly as shown below, with each part on a new line.
 
             ### RULES:
-            - Do NOT include a preamble like "Here is the cold email:" or "Subject:".
-            - Sign off with the exact signature below, ensuring each part is on a new line.
-
-            ### SIGNATURE:
+            - Keep the email body concise and professional.
+            - Do not add any preamble or text before the "Subject:" line.
+            
+            ### SIGNATURE FORMAT:
             Best regards,
-            {user_name}
-            {user_role}
-            {user_company}
 
-            ### COLD EMAIL:
+            {your_name}
+
+            {your_phone} | {your_links}
+
+            ### EMAIL:
             """
         )
+
+        application_chain = prompt_template | self.llm
         
-        chain_email = prompt_email | self.llm
-        
-        res = chain_email.invoke({
-            "job_description": str(job), 
-            "link_list": links,
-            "user_name": user_name,
-            "user_role": user_role,
-            "user_company": user_company,
-            "company_description": company_description
+        response = application_chain.invoke({
+            "job_description": job_description,
+            "your_name": your_name,
+            "your_status": your_status,
+            "your_passion": your_passion,
+            "your_projects": your_projects,
+            "your_skills": your_skills,
+            "your_phone": your_phone,
+            "your_links": your_links
         })
         
-        return res.content
-
-if __name__ == "__main__":
-    print(os.getenv("GROQ_API_KEY"))
+        return response.content
