@@ -1,0 +1,12 @@
+# Virtual Environment
+.venv/
+
+# Environment variables
+.env
+
+# ChromaDB database files
+vectorstore/
+
+# Python cache
+__pycache__/
+*.pyc
