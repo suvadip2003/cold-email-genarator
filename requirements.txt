@@ -7,3 +7,4 @@ pandas
 python-dotenv
 unstructured
 selenium
+pysqlite3-binary
