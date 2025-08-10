@@ -54,6 +54,7 @@ class Chain:
             {your_phone} | {your_links}
 
             ### EMAIL:
+            Subject:
             """
         )
 
