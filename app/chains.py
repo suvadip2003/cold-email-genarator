@@ -32,28 +32,58 @@ class Chain:
             raise OutputParserException("Context too big. Unable to parse jobs.")
         return res if isinstance(res, list) else [res]
 
-    def write_mail(self, job, links):
+    # --- UPDATED METHOD ---
+    def write_mail(self, job, links, user_name, user_role, user_company, company_description):
+        """
+        Generates a cold email using a flexible and powerful prompt template.
+        """
         prompt_email = PromptTemplate.from_template(
             """
-            ### JOB DESCRIPTION:
-            {job_description}
+            ### PERSONA:
+            You are a world-class business development executive and an expert cold email writer. Your tone is confident, professional, and helpful.
 
-            ### INSTRUCTION:
-            You are Mohan, a business development executive at AtliQ. AtliQ is an AI & Software Consulting company dedicated to facilitating
-            the seamless integration of business processes through automated tools. 
-            Over our experience, we have empowered numerous enterprises with tailored solutions, fostering scalability, 
-            process optimization, cost reduction, and heightened overall efficiency. 
-            Your job is to write a cold email to the client regarding the job mentioned above describing the capability of AtliQ 
-            in fulfilling their needs.
-            Also add the most relevant ones from the following links to showcase Atliq's portfolio: {link_list}
-            Remember you are Mohan, BDE at AtliQ. 
-            Do not provide a preamble.
-            ### EMAIL (NO PREAMBLE):
+            ### CONTEXT:
+            - Your Identity: You are {user_name}, a {user_role} at {user_company}.
+            - Your Company's Pitch: {company_description}
+            - Your Proof Points: Here is a list of relevant portfolio links you can use as social proof: {link_list}
+            - The Target: You are writing to a hiring manager about the following job posting.
+            - Job Posting Text: {job_description}
 
+            ### TASK:
+            Write a concise, professional, and highly personalized cold email to the hiring manager for this role. The email must be under 150 words and follow the structure below exactly.
+
+            ### EMAIL STRUCTURE:
+            1.  **Subject Line:** Create a short, specific subject line that references the job role.
+            2.  **Personalized Opening (1 sentence):** Start by directly referencing the specific job title to prove you've done research.
+            3.  **Value Proposition (2-3 sentences):** Connect your company's value directly to the key needs and responsibilities mentioned in the job description. Focus on the benefits you provide (e.g., "increase efficiency," "reduce costs," "solve X problem").
+            4.  **Social Proof (1 sentence):** Naturally include one of the most relevant portfolio links from the context to build credibility.
+            5.  **Call to Action (1 sentence):** End with a single, clear, low-friction question suggesting a brief call (e.g., "Would you be open to a 15-minute call next week?").
+
+            ### RULES:
+            - Do NOT include a preamble like "Here is the cold email:" or "Subject:".
+            - Sign off with the exact signature below, ensuring each part is on a new line.
+
+            ### SIGNATURE:
+            Best regards,
+            {user_name}
+            {user_role}
+            {user_company}
+
+            ### COLD EMAIL:
             """
         )
+        
         chain_email = prompt_email | self.llm
-        res = chain_email.invoke({"job_description": str(job), "link_list": links})
+        
+        res = chain_email.invoke({
+            "job_description": str(job), 
+            "link_list": links,
+            "user_name": user_name,
+            "user_role": user_role,
+            "user_company": user_company,
+            "company_description": company_description
+        })
+        
         return res.content
 
 if __name__ == "__main__":
