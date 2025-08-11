@@ -10,8 +10,8 @@ An intelligent application that automates the creation of personalized cold emai
 Here's a look at the clean and intuitive user interface built with Streamlit. The user provides their personal information in the sidebar, pastes a job description, and receives a professionally crafted email in seconds.
 
 
-![App Screenshot](https://drive.google.com/file/d/1vuPXtI3EC5yIpBQqZA-UzQ0bnhAoHaG-/view?usp=sharing) 
-*(To make this image work, you can upload your screenshot to a site like [Imgur](https://imgur.com/upload) and paste the direct link here)*
+![App Screenshot](https://drive.google.com/file/d/1vuPXtI3EC5yIpBQqZA-UzQ0bnhAoHaG-/view) 
+
 
 ---
 
