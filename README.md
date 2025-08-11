@@ -4,14 +4,6 @@ An intelligent application that automates the creation of personalized cold emai
 ## ✨ Live Demo
 **[🚀 View the live application here!](https://cold-email-genarator-b8swfy3w739wbvug3aelhz.streamlit.app/)** *(Note: Replace this with your actual deployment link)*
 
----
-
-## 📸 Application Interface
-Here's a look at the clean and intuitive user interface built with Streamlit. The user provides their personal information in the sidebar, pastes a job description, and receives a professionally crafted email in seconds.
-
-
-![App Screenshot](https://drive.google.com/file/d/1vuPXtI3EC5yIpBQqZA-UzQ0bnhAoHaG-/view) 
-
 
 ---
 
